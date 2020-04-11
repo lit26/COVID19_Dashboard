@@ -48,4 +48,5 @@ This app will download data from Johns Hopkins CSSE (https://github.com/CSSEGISa
 
 ## Resources
 Data Source: Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19)
+
 Dash Documentation: https://plotly.com/
