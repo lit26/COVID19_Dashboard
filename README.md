@@ -43,7 +43,8 @@ This app will download data from Johns Hopkins CSSE (https://github.com/CSSEGISa
 
 ## Screenshots
 
-![demo.png](demo.png)
+![screenshot1](assets/screenshot1.gif)
+![screenshot2](assets/screenshot2.gif)
 
 ## Resources
 Data Source: Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19)

@@ -22,11 +22,11 @@ server = app.server
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
 
 # Load location coordinates
-df_stateLoc = pd.read_csv("statelatlong.csv")
+df_stateLoc = pd.read_csv("data/statelatlong.csv")
 
 # Initialize data frame
 def loadData():
-    df = pd.read_csv('data.csv')
+    df = pd.read_csv('data/data.csv')
     df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
     df["Admin2"] = df["Admin2"].fillna(df["Province_State"])
     df_state = df.groupby(["Province_State", "Date"]).sum().reset_index()
@@ -302,20 +302,18 @@ def displayMessage(n_clicks):
 def dataUpdate(n_clicks):
     global df, df_state
     if n_clicks is not None:
-        yesterday = (dt.now() - timedelta(days=1)).date()
-        if yesterday != currentDate.date():
-            print("Data Updating...")
-            Covid19_data = dr.Covid19Data("US")
-            print("Fetch Data from Github...")
-            Covid19_data.getData()
+        print("Data Updating...")
+        Covid19_data = dr.Covid19Data("US")
+        print("Fetch Data from Github...")
+        Covid19_data.getData()
 
-            df_trend = Covid19_data.readData()
-            print("Read Data...")
-            Covid19_data.getCSV()
-            print("Output Data...")
-            currentData = Covid19_data.getDate().tolist()[-1]
-            print("Update Dashboard...")
-            df, df_state = loadData()
+        print("Read Data...")
+        df_trend = Covid19_data.readData()
+        print("Output Data...")
+        Covid19_data.getCSV()
+        currentData = Covid19_data.getDate().tolist()[-1]
+        print("Update Dashboard...")
+        df, df_state = loadData()
         print("Data update complete.")
     startDate, day_data, current_date, current_confirmed, current_deaths = getCurrentStatus()
     update_date = "Date Update: {}".format(current_date.strftime("%Y-%m-%d"))

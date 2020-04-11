@@ -64,7 +64,7 @@ class Covid19Data:
     def getCSV(self):
         self.df_trend=self.df_trend[["Province_State","Admin2","Lat","Long_","Date","Confirmed","Deaths",
                           "Daily_Confirmed","Daily_Deaths"]]
-        self.df_trend.to_csv('data.csv', index=False)
+        self.df_trend.to_csv('data/data.csv', index=False)
 
 
 
