@@ -4,7 +4,7 @@
 
 This is a COVID-19 Dashboard using the Dash interactive Python framework.
 
-## How to run this app
+## Initialize this app
 
 (The following instructions apply to terminal command line.)
 
