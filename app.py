@@ -2,15 +2,14 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
-import numpy as np
 
-import dataRetrive as dr
+from util import state_list, readData
 
 from dash.dependencies import Input, Output, State
 from plotly import graph_objs as go
 from plotly.graph_objs import *
 from datetime import datetime as dt
-from datetime import timedelta
+
 
 
 app = dash.Dash(
@@ -26,25 +25,22 @@ df_stateLoc = pd.read_csv("data/statelatlong.csv")
 
 # Initialize data frame
 def loadData():
-    df = pd.read_csv('data/data.csv')
-    df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
+    df = readData()
+
     df["Admin2"] = df["Admin2"].fillna(df["Province_State"])
     df_state = df.groupby(["Province_State", "Date"]).sum().reset_index()
     df_state = df_state[["Province_State","Date","Confirmed","Deaths","Daily_Confirmed","Daily_Deaths"]]
     df_state = pd.merge(left=df_state, right=df_stateLoc, how='left', left_on='Province_State', right_on='State')
     df_state = df_state.drop(["State"],axis=1)
-    df_state = df_state.rename(columns={"Latitude": "Lat", "Longitude": "Long_"})
     return df, df_state
 
 def getLocMap():
-    state_list = df["Province_State"].unique().tolist()
-    state_list.sort()
     state_admin2 = [df[df["Province_State"]==i]["Admin2"].unique().tolist() for i in state_list]
     state_dictionary = dict(zip(state_list, state_admin2))
-    return state_list,state_dictionary
+    return state_dictionary
 
 def getCurrentStatus():
-    startDate = df["Date"][0]
+    startDate = df['Date'].iloc[0]
     dayData = df[["Date","Confirmed","Deaths"]].groupby(["Date"]).sum().reset_index()
     currentData = dayData[-1:]
     currentDate = currentData.iloc[0]["Date"]
@@ -53,7 +49,7 @@ def getCurrentStatus():
     return startDate, dayData, currentDate, currentConfirmed, currentDeaths
 
 # Load options
-def getDropdownOptions(state_list):
+def getDropdownOptions():
     state_options = [{"label":i,"value":i} for i in state_list]
     state_options = [{"label":"State","value":"US"}]+state_options
     admin2_list = df["Admin2"].unique().tolist()
@@ -63,32 +59,28 @@ def getDropdownOptions(state_list):
     return state_options, admin2_options
 
 df, df_state = loadData()
-state_list,state_dictionary = getLocMap()
+state_dictionary = getLocMap()
 startDate, dayData, currentDate, currentConfirmed, currentDeaths = getCurrentStatus()
-state_options, admin2_options = getDropdownOptions(state_list)
+state_options, admin2_options = getDropdownOptions()
 
 # Scale
-caseConfirmedScale = {range(0, 1): 0, 
-                     range(1, 100): 3,
-                     range(100,500): 5,
-                     range(500, 1000): 10,
-                     range(1000,5000): 15,
-                     range(5000,10000): 20,
-                     range(10000,50000): 25,
-                     range(50000,100000): 30,
-                     range(100000,500000): 35,
-                     range(500000,1000000): 40
+caseConfirmedScale = {range(0,1000): 1,
+                     range(1000,5000): 5,
+                     range(5000,10000): 10,
+                     range(10000,50000): 15,
+                     range(50000,100000): 20,
+                     range(100000,500000): 25,
+                     range(500000,1000000): 30,
+                     range(1000000,5000000): 35
                      }
-caseDeathScale = {range(0, 1): 0, 
-                  range(1, 10): 3,
-                  range(10,50): 5,
-                  range(50, 100): 10,
-                  range(100,500): 15,
-                  range(500,1000): 20,
-                  range(1000,5000): 25,
-                  range(5000,10000): 30,
-                  range(10000,50000): 35,
-                  range(50000,100000): 40
+caseDeathScale = {range(1, 100): 1,
+                  range(100,500): 5,
+                  range(500,1000): 10,
+                  range(1000,5000): 15,
+                  range(5000,10000): 20,
+                  range(10000,50000): 25,
+                  range(50000,100000): 30,
+                  range(100000,500000): 35,
                  }
 
 # Layout of Dash App
@@ -111,7 +103,7 @@ app.layout = html.Div(
                         html.P(
                             """Data Source: Johns Hopkins CSSE (Subjected to data structure change)."""
                         ),
-                        html.P("By {}, there are {} confirmed cases and {} deaths."
+                        html.P("By {}, there are {:,} confirmed cases and {:,} deaths."
                             .format(currentDate.strftime("%Y-%m-%d"),
                                     currentConfirmed,
                                     currentDeaths),
@@ -129,25 +121,6 @@ app.layout = html.Div(
                                     style={"border": "0px solid black"},
                                 ),
                             ],
-                        ),
-                        html.P("Date Update: {}".format(currentDate.strftime("%Y-%m-%d")),
-                                id="updateDate",
-                                style={
-                                    "marginTop":"2px",
-                                    "float":"left",
-                                }
-                        ),
-                        html.Button("Update",
-                                id="data-update",
-                                style={
-                                    "marginLeft":"1px",
-                                    "marginTop":"1px",
-                                    "marginBottom":"15px",
-                                    "paddingLeft":"10px",
-                                    "paddingRight":"10px",
-                                    "height":"20px",
-                                    "lineHeight":"22px"
-                                }
                         ),
                         html.P("Confirmed: 0",
                                 id="graphConfirmed"),
@@ -281,49 +254,6 @@ app.layout = html.Div(
     ]
 )
 
-def displayMessage(n_clicks):
-    message = False
-    if n_clicks is not None:
-        message = True
-    return message
-
-# Get latest data
-@app.callback(
-    [
-        Output("updateDate","children"),
-        Output('date-picker', 'max_date_allowed'),
-        Output('date-picker','date'),
-        Output('summary','children'),
-    ],
-    [
-        Input("data-update","n_clicks"),
-    ],
-)
-def dataUpdate(n_clicks):
-    global df, df_state
-    if n_clicks is not None:
-        print("Data Updating...")
-        Covid19_data = dr.Covid19Data("US")
-        print("Fetch Data from Github...")
-        Covid19_data.getData()
-
-        print("Read Data...")
-        df_trend = Covid19_data.readData()
-        print("Output Data...")
-        Covid19_data.getCSV()
-        currentData = Covid19_data.getDate().tolist()[-1]
-        print("Update Dashboard...")
-        df, df_state = loadData()
-        print("Data update complete.")
-    startDate, day_data, current_date, current_confirmed, current_deaths = getCurrentStatus()
-    update_date = "Date Update: {}".format(current_date.strftime("%Y-%m-%d"))
-    max_date = current_date.strftime("%Y-%m-%d")
-    summary = "By {}, there are {} confirmed cases and {} deaths." \
-                            .format(current_date.strftime("%Y-%m-%d"),
-                                    current_confirmed,
-                                    current_deaths),
-    return [update_date,max_date,max_date,summary]
-
 @app.callback(
     [
         Output("area-place", "children"), 
@@ -345,8 +275,8 @@ def update_data_confirmed(state,county):
     else :
         df_current = df.groupby(["Date"]).sum().reset_index()
         current_place = "Area: {0}".format("US")
-    current_confirmed = "Confirmed: {0}".format(df_current["Confirmed"][-1:].values[0])
-    current_deaths = "Deaths: {0}".format(df_current["Deaths"][-1:].values[0])
+    current_confirmed = "Confirmed: {:,}".format(df_current["Confirmed"][-1:].values[0])
+    current_deaths = "Deaths: {:,}".format(df_current["Deaths"][-1:].values[0])
     return current_place, current_confirmed, current_deaths
 
 # Update county based on state
@@ -407,17 +337,17 @@ def update_graph(datePicked,casePicked,areaPicked,state,county):
 
     if county != "N/A" and county != "" and county is not None and county != "Unassigned":        
         zoom = 6
-        location = df[["Admin2","Lat","Long_"]].drop_duplicates()
+        location = df[["Admin2","Latitude","Longitude"]].drop_duplicates()
         location = location[location["Admin2"] == county]
-        latInitial = location['Lat'].values[0]
-        lonInitial = location['Long_'].values[0]
+        latInitial = location['Latitude'].values[0]
+        lonInitial = location['Longitude'].values[0]
     elif state != "US" and state !="" and state is not None:
         zoom = 4.4
         location = df_stateLoc[df_stateLoc["State"] == state]
         latInitial = location['Latitude'].values[0]
         lonInitial = location['Longitude'].values[0]
 
-    df_area = df_area[df_area.Lat != 0]
+    df_area = df_area[df_area['Latitude'] != 0]
     date_picked = dt.strptime(datePicked, "%Y-%m-%d")
     listCoords = df_area[df_area["Date"]==date_picked]
     d = caseDeathScale if casePicked=="Deaths" else caseConfirmedScale
@@ -426,8 +356,8 @@ def update_graph(datePicked,casePicked,areaPicked,state,county):
         data=[
             # Data for all rides based on date and time
             Scattermapbox(
-                lat=listCoords["Lat"],
-                lon=listCoords["Long_"],
+                lat=listCoords["Latitude"],
+                lon=listCoords["Longitude"],
                 mode="markers",
                 hoverinfo="text",
                 text = listCoords["hovertext"]+": "+listCoords[casePicked].astype(str),
@@ -488,8 +418,8 @@ def update_graph(datePicked,casePicked,areaPicked,state,county):
     )
     dayData = df[["Date","Confirmed","Deaths"]].groupby(["Date"]).sum().reset_index()
     day_data = dayData[dayData["Date"]==date_picked]
-    confirmedCase = "Confirmed: {}".format(day_data["Confirmed"].values[0])
-    deathCase = "Deaths: {}".format(day_data["Deaths"].values[0])
+    confirmedCase = "Confirmed: {:,}".format(day_data["Confirmed"][-1:].values[0])
+    deathCase = "Deaths: {:,}".format(day_data["Deaths"][-1:].values[0])
     return USmap, confirmedCase, deathCase
 
 # Update plot
@@ -509,57 +439,51 @@ def update_plot(casePicked, state,county):
     else :
         df_day = df.groupby(["Date"]).sum().reset_index()
     
-    df_day = df_day[["Date","Confirmed","Deaths","Daily_Confirmed","Daily_Deaths"]]
     yVal = df_day[casePicked]
     yVal2 = df_day["Daily_"+casePicked]
-    data = [
-            dict(
-                type="scatter",
-                mode="lines+markers",
-                name=casePicked,
-                x=df_day["Date"],
-                y=yVal,
-                line=dict(
-                        shape="spline", 
-                        smoothing=2, 
-                        width=1, 
-                        color='red' if casePicked=="Deaths" else '#D79913'
-                    ),
-                marker=dict(
-                        symbol="dot",
-                        size=4,
-                    ),
+  
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+            x=df_day["Date"],
+            y=yVal,
+            name=casePicked,
+            line=dict(
+                color='red' if casePicked=="Deaths" else '#D79913'
+            ),
+        ),
+    )
+    fig.add_trace(go.Bar(
+            x=df_day["Date"],
+            y=yVal2,
+            name="Daily_"+casePicked,
+            yaxis="y2",
+            marker=dict(
+                    color='red' if "Daily_"+casePicked=="Daily_Deaths" else '#D79913'                    
                 ),
-            dict(
-                type="bar",
-                mode="bar+markers",
-                name="Daily_"+casePicked,
-                x=df_day["Date"],
-                y=yVal2,
-                marker=dict(
-                        symbol="dash",
-                        color='red' if "Daily_"+casePicked=="Daily_Deaths" else '#D79913'                    
-                    ),
-                ),
-            ]
-    layout = dict(
+            ),
+    )
+    fig.update_layout(
         height=450,
         legend=dict(font=dict(size=10), orientation="h"),
         title="Number of {} Cases".format(casePicked),
         plot_bgcolor="#323130",
         paper_bgcolor="#323130",
         font=dict(family="Open Sans, sans-serif", size=13, color="white"),
-        xaxis=dict(rangeslider=dict(visible=True), yaxis=dict(title="Records")),
-        yaxis={            
-            "showgrid": True,
-            "showline": True,
-            "fixedrange": True,
-            "zeroline": False,
-            "gridcolor": '#6c6c6c',
-        },
+        xaxis=dict(rangeslider=dict(visible=True)),
+        yaxis=dict(
+            zeroline=False,
+            gridcolor='#6c6c6c',
+        ),
+        yaxis2=dict(
+            anchor="free",
+            overlaying="y",
+            side="right",
+            position=1,
+            showgrid=False,
+            zeroline=False,
+        ),
     )
-    figure = dict(data=data, layout=layout)
-    return figure
+    return fig
 
 # Update Pie Graph
 @app.callback(
@@ -594,7 +518,6 @@ def update_pie(datePicked, casePicked, state):
             textinfo="label+percent+name",
             hole=0.5,
             marker=dict(colors=aggregate_top[area].tolist()),
-            #domain={"x": [0.55, 1], "y": [0.2, 0.8]},
         ),
     ]
     layout_pie = dict(
