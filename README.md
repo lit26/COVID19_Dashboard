@@ -4,9 +4,9 @@
 
 This is a COVID-19 Dashboard using the Dash interactive Python framework.
 
-## How to run this app
+## Initialize this app
 
-(The following instructions apply to command line.)
+(The following instructions apply to terminal command line.)
 
 Create and activate a new virtual environment (recommended) by running
 the following:
@@ -50,3 +50,6 @@ This app will download data from Johns Hopkins CSSE (https://github.com/CSSEGISa
 Data Source: Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19)
 
 Dash Documentation: https://plotly.com/
+
+## Contact:
+Email: ltianningli@gmail.com
