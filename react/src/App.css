@@ -1,0 +1,27 @@
+body{
+  background-color: #1E1E1E;
+  color: #d8d8d8
+}
+h2{
+  padding: 0px 12px;
+  margin: 18px 0px;
+  font-size: 21px;
+}
+p{
+  font-size: 14px;
+}
+.col-md-6{
+  padding-right: 0px;
+}
+.col-md-4{
+  padding-left: 0px;
+}
+.MuiInputBase-input{
+  color:white !important;
+}
+.MuiFormGroup-root{
+  margin:10px 0;
+}
+.MuiFormControl-root{
+  margin-bottom: 10px !important;
+}
