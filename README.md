@@ -1,8 +1,18 @@
 # COVID-19 US Case Map
 
-## About this app
+## About the apps
 
-This is a COVID-19 Dashboard using the Dash interactive Python framework.
+COVID-19 Dashboard: visualize the COVID-19 cases according to the state, county. 
+
+## React Version
+
+<details>
+Using plotly.js to plot the graphs
+</details>
+
+## Python Version -- using the Dash interactive Python framework.
+
+<details>
 
 ## Initialize this app
 
@@ -37,17 +47,24 @@ python3 app.py
 ```
 You can run the app on your browser at http://127.0.0.1:8050
 
+</details>
+
 ## Data Update
 
-This app will download data from Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19) and will preprocess the data for this app.
+Python version collects data directly from Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19) and will preprocess the data for this app.
+
+React version use the data from https://github.com/lit26/COVID19_Data. Which is a repo which auto fetching data from Johns Hopkins CSSE and process with scripts. The data will update daily at 0:00 Pacific Time. 
 
 ## Screenshots
 
-![screenshot1](assets/screenshot1.gif)
-![screenshot2](assets/screenshot2.gif)
+Both apps display similarly. 
+
+![screenshot1](assets/screenshot.gif)
 
 ## Resources
 Data Source: Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19)
+
+lit26/COVID19_Data (https://github.com/lit26/COVID19_Data)
 
 Dash Documentation: https://plotly.com/
 

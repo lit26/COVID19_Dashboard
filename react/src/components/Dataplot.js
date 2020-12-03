@@ -53,7 +53,8 @@ export function Geoplot({ data, geo, choice, state, county }) {
                     return '';
                 })
             }
-            
+        }else{
+            setCenter([-95.61446, 38.72490, 2.3])
         }
 
         setGraphData({
