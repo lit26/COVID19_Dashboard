@@ -25,3 +25,14 @@ p{
 .MuiFormControl-root{
   margin-bottom: 10px !important;
 }
+.Mainbody__play{
+  display:flex;
+  align-items: center;
+}
+.Mainbody__play > p{
+  margin: 10px 0px;
+  margin-right: 10px;
+}
+.Mainbody__play > .MuiSvgIcon-root{
+  cursor:pointer;
+}

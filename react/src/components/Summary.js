@@ -4,7 +4,7 @@ function Summary({currentDate, currentConfirmed, currentDeath}) {
     return (
         <>
             <p>Data Source: Johns Hopkins CSSE (Subjected to data structure change).</p>
-            <p>By {currentDate}, there are {currentConfirmed.toLocaleString()} confirmed cases and {currentDeath.toLocaleString()} deaths.</p>
+            <p>By {currentDate}, there are {currentConfirmed.toLocaleString()} confirmed and {currentDeath.toLocaleString()} deaths cases.</p>
         </>
     )
 }

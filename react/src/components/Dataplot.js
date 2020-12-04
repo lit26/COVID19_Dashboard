@@ -6,22 +6,24 @@ import Plot from 'react-plotly.js';
 // plots on geomap
 export function Geoplot({ data, geo, choice, state, county }) {
     const [graphData, setGraphData] = useState({});
-    const [center, setCenter] = useState([-95.61446, 38.72490, 2.3])
+    const [center, setCenter] = useState([-95.61446, 38.72490, 2.5])
 
     useEffect(() => {
         let lats = [];
         let lons = [];
         let cases = [];
         let hoverText = [];
-        let color = ''
+        let color = '';
         data.map(row => {
-            let covid_case = 0;
+            let covid_case = row[choice];
             if (choice === 'Confirmed') {
-                covid_case = row.Confirmed;
                 color = '#D79913';
-            } else {
-                covid_case = row.Deaths;
+            } else if (choice === 'Daily_Confirmed'){
+                color = '#d7b613'
+            } else if (choice === 'Deaths') {
                 color = 'red';
+            } else if (choice === 'Daily_Deaths'){
+                color = '#ff5500';
             }
             if (geo === 'county') {
                 let fips = row.FIPS;
@@ -54,7 +56,7 @@ export function Geoplot({ data, geo, choice, state, county }) {
                 })
             }
         }else{
-            setCenter([-95.61446, 38.72490, 2.3])
+            setCenter([-95.61446, 38.72490, 2.5])
         }
 
         setGraphData({
@@ -230,42 +232,90 @@ export function Pieplot({ loc, data, choice }) {
 }
 
 function scaling(n, choice) {
+    let size = 0;
     if (choice === 'Confirmed') {
-        if (n < 5000) {
-            return 1;
+        if (n === 0){
+            size = 0;
+        } else if (n < 5000) {
+            size = 1;
         } else if (n < 10000) {
-            return 3;
+            size = 3;
         } else if (n < 50000) {
-            return 5;
+            size = 5;
         } else if (n < 100000) {
-            return 8;
+            size = 8;
         } else if (n < 500000) {
-            return 10;
+            size = 10;
         } else if (n < 1000000) {
-            return 20;
+            size = 20;
         } else if (n < 2000000) {
-            return 30;
+            size = 30;
         } else {
-            return 50;
+            size = 50;
+        }
+    } else if (choice === 'Deaths') {
+        if (n === 0){
+            size = 0;
+        } else if (n < 100) {
+            size = 1;
+        } else if (n < 500) {
+            size = 3;
+        } else if (n < 1000) {
+            size = 5;
+        } else if (n < 5000) {
+            size = 10;
+        } else if (n < 10000) {
+            size = 15;
+        } else if (n < 50000) {
+            size = 20;
+        } else if (n < 100000) {
+            size = 25;
+        } else {
+            size = 35;
+        }
+    } else if (choice === 'Daily_Confirmed'){
+        if (n===0){
+            size = 0;
+        }else if (n < 100) {
+            size = 1;
+        }else if (n < 500) {
+            size = 3;
+        }else if (n < 1000) {
+            size = 5;
+        }else if (n < 2000) {
+            size = 10;
+        }else if (n < 5000) {
+            size = 15;
+        }else if (n < 10000){
+            size = 20;
+        }else if (n < 20000) {
+            size = 25;
+        }else if (n < 50000) {
+            size = 30;
+        }else{
+            size = 50;
         }
     } else {
-        if (n < 100) {
-            return 1;
-        } else if (n < 500) {
-            return 5;
-        } else if (n < 1000) {
-            return 10;
-        } else if (n < 5000) {
-            return 15;
-        } else if (n < 10000) {
-            return 20;
-        } else if (n < 50000) {
-            return 25;
-        } else if (n < 100000) {
-            return 30;
-        } else {
-            return 35;
+        if (n===0){
+            size = 0;
+        }else if (n<10){
+            size = 1;
+        }else if (n<30){
+            size = 5;
+        }else if (n<50){
+            size = 7;
+        }else if (n<100){
+            size = 10;
+        }else if (n<200){
+            size = 15;
+        }else if (n<500){
+            size = 20;
+        }else if (n<1000){
+            size = 25;
+        }else{
+            size = 30;
         }
     }
+    return size;
 }
 
