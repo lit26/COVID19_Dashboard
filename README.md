@@ -5,7 +5,7 @@
 COVID-19 Dashboard: visualize the COVID-19 cases according to the state, county. 
 
 - Version 1: React website. Deploy: https://covid19-dashboard-b9495.web.app/
-- Version 2: Dash website.
+- Version 2: Dash website. Using the Dash interactive Python framework.
 
 ## React Version
 
@@ -13,7 +13,7 @@ COVID-19 Dashboard: visualize the COVID-19 cases according to the state, county.
 Using plotly.js to plot the graphs.
 </details>
 
-## Python Version -- using the Dash interactive Python framework.
+## Python Version
 
 <details>
 
