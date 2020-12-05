@@ -231,6 +231,7 @@ export function Pieplot({ loc, data, choice }) {
     )
 }
 
+// select the size of the dot
 function scaling(n, choice) {
     let size = 0;
     if (choice === 'Confirmed') {

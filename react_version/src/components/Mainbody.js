@@ -40,6 +40,7 @@ function Mainbody() {
     const [piePlot, setPiePlot] = useState([]);
     const [timeline, setTimeline] = useState([]);
 
+    // getting data for maps according to the dates
     useEffect(() => {
         if (date !== '') {
             d3.csv(`https://raw.githubusercontent.com/lit26/COVID19_Data/main/time_series_data/${date}/covid_19_${geo}.csv`).then(function (data) {
@@ -62,6 +63,7 @@ function Mainbody() {
 
     }, [date, choice, geo])
 
+    // getting state and county data 
     useEffect(() => {
         axios.get('https://raw.githubusercontent.com/lit26/COVID19_Data/main/data/covid_19_state_v1.json')
             .then(res => {
@@ -86,6 +88,7 @@ function Mainbody() {
             })
     }, [])
 
+    // getting counties according to the state
     useEffect(() => {
         if (state !== 'US') {
             setCountySelect(
@@ -106,12 +109,14 @@ function Mainbody() {
         }
     }, [state, county, classes.select])
 
+    // plot the bar chart and line chart
     useEffect(() => {
         let selection = choice.replace('Daily_','');
         let barData = gettingData(state, county, stateData, countyData, selection);
-        setTimeseriesPlot(<Timeseriesplot barData={barData} choice={selection} />)
+        setTimeseriesPlot(<Timeseriesplot barData={barData} choice={selection}/>)
     }, [state, county, stateData, countyData, choice])
 
+    // plot the pie chart
     useEffect(() => {
         let selection = choice.replace('Daily_','');
         let returnData = gettingTopKData(state, stateData, countyData, selection);
@@ -120,11 +125,12 @@ function Mainbody() {
         setPiePlot(<Pieplot loc={loc} data={data} choice={selection} />)
     }, [state, stateData, countyData, choice])
 
+    // play the history when the button is clicked
     const playHistory = () => {
         for(let i = 1; i < timeline.length; i++) {
             setTimeout(()=>{
                setDate(timeline[i]);
-            },i * 100); // multiple i by 1000
+            },i * 100); 
          }
     }
 

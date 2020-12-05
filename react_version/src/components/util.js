@@ -1,10 +1,13 @@
 import countyCoor from './uscountyCoor.json';
 
+// adding two array pairwise
 function add(arr1, arr2) {
     return arr1.map(function(value, index) {
       return value + arr2[index];
     });
 }
+
+// calculate the cases for the whole US
 export function calculateCases(data, choice){
     if(Object.keys(data).length !== 0){
         let summation = new Array(data['Alabama']['Date'].length).fill(0);
@@ -19,6 +22,7 @@ export function calculateCases(data, choice){
     }
 }
 
+// get the data according to the user area input
 export function gettingData(state, county, stateData, countyData, choice){
     let cases = [];
     let dailyCases = [];
@@ -44,9 +48,10 @@ export function gettingData(state, county, stateData, countyData, choice){
             return '';
         })
     }
-    return {'Date':dates, 'Cases': cases, 'DailyCases':dailyCases};
+    return {'Date':dates, 'Cases': cases, 'DailyCases': dailyCases};
 }
 
+// getting the top cases for the pie chart
 export function gettingTopKData(state, stateData, countyData, choice){
     let loc = [];
     let data = [];
