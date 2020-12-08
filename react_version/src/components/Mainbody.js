@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 function Mainbody() {
     const classes = useStyles();
     const [choice, setChoice] = useState("Confirmed");
-    const [geo, setGeo] = useState("state")
+    const [geo, setGeo] = useState("county")
     const [date, setDate] = useState('');
     const [totalConfirmed, setTotalConfirmed] = useState(0);
     const [totalDeath, setTotalDeath] = useState(0);
@@ -39,10 +39,6 @@ function Mainbody() {
     const [timeseriesPlot, setTimeseriesPlot] = useState([]);
     const [piePlot, setPiePlot] = useState([]);
     const [timeline, setTimeline] = useState([]);
-
-    useEffect(() => {
-        console.log(document.querySelector('div.col-md-7').clientWidth)
-    },[])
 
     // getting data for maps according to the dates
     useEffect(() => {
