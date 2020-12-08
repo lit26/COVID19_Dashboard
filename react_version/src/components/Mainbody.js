@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { stateAbbreviation } from './StateInfo'
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Select, MenuItem, Radio, RadioGroup, FormControlLabel } from '@material-ui/core/';
+import { TextField, Select, MenuItem} from '@material-ui/core/';
 import * as d3 from 'd3';
 import uscountyDict from './uscountyDict.json';
 import axios from 'axios'
 import { calculateCases, gettingData, gettingTopKData } from './util';
 import Summary from './Summary'
 import { Geoplot, Timeseriesplot, Pieplot } from './Dataplot'
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container, Row, Col} from 'react-bootstrap'
 import PlayCircleIcon from '@material-ui/icons/PlayCircleOutline'
 
 const useStyles = makeStyles((theme) => ({
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 function Mainbody() {
     const classes = useStyles();
     const [choice, setChoice] = useState("Confirmed");
-    const [geo, setGeo] = useState("county")
+    const [geo, setGeo] = useState("state")
     const [date, setDate] = useState('');
     const [totalConfirmed, setTotalConfirmed] = useState(0);
     const [totalDeath, setTotalDeath] = useState(0);
@@ -39,6 +39,10 @@ function Mainbody() {
     const [timeseriesPlot, setTimeseriesPlot] = useState([]);
     const [piePlot, setPiePlot] = useState([]);
     const [timeline, setTimeline] = useState([]);
+
+    useEffect(() => {
+        console.log(document.querySelector('div.col-md-7').clientWidth)
+    },[])
 
     // getting data for maps according to the dates
     useEffect(() => {
@@ -156,6 +160,14 @@ function Mainbody() {
                             <p>Confirmed: {totalConfirmed.toLocaleString()}</p>
                             <p>Deaths: {totalDeath.toLocaleString()}</p>
                         </div>
+                        <Select
+                            value={geo}
+                            onChange={(e) => setGeo(e.target.value)}
+                            className={classes.select}
+                        >
+                            <MenuItem value="state">By State</MenuItem>
+                            <MenuItem value="county">By County</MenuItem>
+                        </Select>
                         <div className="Mainbody__play">
                             <p>Play history: </p>
                             <PlayCircleIcon onClick={playHistory} />
@@ -170,10 +182,6 @@ function Mainbody() {
                             <MenuItem value={"Daily_Confirmed"}>Daily Confirmed</MenuItem>
                             <MenuItem value={"Daily_Deaths"}>Daily Deaths</MenuItem>
                         </Select>
-                        <RadioGroup value={geo} onChange={(e) => setGeo(e.target.value)}>
-                            <FormControlLabel value="county" control={<Radio color="primary" />} label="By County" />
-                            <FormControlLabel value="state" control={<Radio color="primary" />} label="By State" />
-                        </RadioGroup>
                     </Col>
                     <Col md={7}>
                         <Geoplot data={geoData} geo={geo} choice={choice} state={state} county={county} />
