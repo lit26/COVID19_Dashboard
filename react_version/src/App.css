@@ -36,3 +36,6 @@ p{
 .Mainbody__play > .MuiSvgIcon-root{
   cursor:pointer;
 }
+.footer{
+  margin: 20px 70px;
+}
