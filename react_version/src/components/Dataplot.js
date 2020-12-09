@@ -126,7 +126,7 @@ export function Geoplot({ data, geo, choice, state, county }) {
 }
 
 // time series plot for cases accross time
-export function Timeseriesplot({ barData, choice }) {
+export function Timeseriesplot({ barData, choice, record }) {
     const [color, setColor] = useState('');
     useEffect(() => {
         if (choice === 'Deaths') {
@@ -153,7 +153,15 @@ export function Timeseriesplot({ barData, choice }) {
                     name: `Daily_${choice}`,
                     yaxis: 'y2',
                     marker: { color: color }
-                }
+                },
+                {
+                    type: 'scatter',
+                    x: barData['Date'],
+                    y: record,
+                    name: 'Max Daily',
+                    yaxis: 'y2',
+                    line: { color: 'white',dash:'dash',width:1}
+                },
             ]}
             layout={{
                 width: document.querySelector('div.col-md-6').clientWidth,

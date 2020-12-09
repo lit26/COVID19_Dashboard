@@ -126,8 +126,9 @@ function Mainbody() {
     useEffect(() => {
         let selection = choice.replace('Daily_','');
         let barData = gettingData(state, county, stateData, countyData, selection);
-        setTimeseriesPlot(<Timeseriesplot barData={barData} choice={selection}/>)
-        setDailyRecords(Math.max.apply(Math, barData.DailyCases))
+        let record = Math.max.apply(Math, barData.DailyCases);
+        setTimeseriesPlot(<Timeseriesplot barData={barData} choice={selection} record={new Array(barData.Date.length).fill(record)}/>);
+        setDailyRecords(record);
     }, [state, county, stateData, countyData, choice])
 
     // plot the pie chart
