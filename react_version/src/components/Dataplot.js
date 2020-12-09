@@ -9,7 +9,6 @@ export function Geoplot({ data, geo, choice, state, county }) {
     const [center, setCenter] = useState([-95.61446, 38.72490, 2.5])
 
     useEffect(() => {
-        console.log(document.querySelector('div.col-md-6').clientWidth);
         let lats = [];
         let lons = [];
         let cases = [];

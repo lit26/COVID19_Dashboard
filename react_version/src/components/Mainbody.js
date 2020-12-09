@@ -29,6 +29,7 @@ function Mainbody() {
     const [date, setDate] = useState('');
     const [totalConfirmed, setTotalConfirmed] = useState(0);
     const [totalDeath, setTotalDeath] = useState(0);
+    const [dailyRecords, setDailyRecords] = useState(0);
     const [summary, setSummary] = useState([]);
     const [state, setState] = useState('US');
     const [county, setCounty] = useState('');
@@ -91,18 +92,30 @@ function Mainbody() {
     // getting counties according to the state
     useEffect(() => {
         if (state !== 'US') {
-            setCountySelect(
-                <Select
-                    value={county}
-                    className={classes.select}
-                    onChange={(e) => setCounty(e.target.value)}
-                >
-                    <MenuItem value="">All Counties</MenuItem>
-                    {uscountyDict[state].map(value => {
-                        return <MenuItem key={value} value={value}>{value}</MenuItem>
-                    })}
-                </Select>
-            );
+            let areas = ['Guam','Northern Mariana Islands', 'Virgin Islands'];
+            if (areas.includes(state) ===false){
+                setCountySelect(
+                    <Select
+                        value={county}
+                        className={classes.select}
+                        onChange={(e) => setCounty(e.target.value)}
+                    >
+                        <MenuItem value="">All Counties</MenuItem>
+                        {uscountyDict[state].map(value => {
+                            return <MenuItem key={value} value={value}>{value}</MenuItem>
+                        })}
+                    </Select>
+                );
+            }else{
+                setCountySelect(
+                    <Select
+                        value={county}
+                        className={classes.select}
+                        onChange={(e) => setCounty(e.target.value)}
+                    >
+                    </Select>
+                );
+            }
         } else {
             setCountySelect([])
             setCounty('');
@@ -114,6 +127,7 @@ function Mainbody() {
         let selection = choice.replace('Daily_','');
         let barData = gettingData(state, county, stateData, countyData, selection);
         setTimeseriesPlot(<Timeseriesplot barData={barData} choice={selection}/>)
+        setDailyRecords(Math.max.apply(Math, barData.DailyCases))
     }, [state, county, stateData, countyData, choice])
 
     // plot the pie chart
@@ -196,6 +210,8 @@ function Mainbody() {
                             })}
                         </Select>
                         {countySelect}
+                        <br />
+                        <p>Max Daily Record: {dailyRecords.toLocaleString()}</p>
                     </Col>
                     <Col md={6}>
                         {timeseriesPlot}
