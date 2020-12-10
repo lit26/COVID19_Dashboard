@@ -29,6 +29,8 @@ function Mainbody() {
     const [date, setDate] = useState('');
     const [totalConfirmed, setTotalConfirmed] = useState(0);
     const [totalDeath, setTotalDeath] = useState(0);
+    const [totalDailyConfirmed, setDailyConfirmed] = useState(0);
+    const [totalDailyDeath, setDailyDeath] = useState(0);
     const [dailyRecords, setDailyRecords] = useState(0);
     const [summary, setSummary] = useState([]);
     const [state, setState] = useState('US');
@@ -40,6 +42,7 @@ function Mainbody() {
     const [timeseriesPlot, setTimeseriesPlot] = useState([]);
     const [piePlot, setPiePlot] = useState([]);
     const [timeline, setTimeline] = useState([]);
+    const [dateIndex,setDateIndex] = useState('');
 
     // getting state and county data 
     useEffect(() => {
@@ -72,6 +75,8 @@ function Mainbody() {
             d3.csv(`https://raw.githubusercontent.com/lit26/COVID19_Data/main/time_series_data/${date}/covid_19_${geo}.csv`).then(function (data) {
                 let total_confirmed = 0;
                 let total_death = 0;
+                let total_daily_confirmed = 0;
+                let total_daily_death = 0;
 
                 data.forEach(function (d) {
                     d.Confirmed = +d.Confirmed;
@@ -80,14 +85,18 @@ function Mainbody() {
                     d.Daily_Deaths = +d.Daily_Deaths;
                     total_confirmed = total_confirmed + d.Confirmed;
                     total_death = total_death + d.Deaths;
+                    total_daily_confirmed = total_daily_confirmed + d.Daily_Confirmed;
+                    total_daily_death = total_daily_death + d.Daily_Deaths;
                 });
                 setTotalConfirmed(total_confirmed);
                 setTotalDeath(total_death);
+                setDailyConfirmed(total_daily_confirmed);
+                setDailyDeath(total_daily_death);
             });
-
+            let data = [];
             if(geo === 'county' && Object.keys(countyData).length !== 0){
                 let dateIndex = countyData['Alabama']['1001.0']['Date'].indexOf(date);
-                let data = [];
+                setDateIndex(dateIndex);
                 Object.entries(countyData).map( ([key1, state]) => {
                     Object.entries(state).map( ([key2, value]) => {
                         data.push({
@@ -106,7 +115,7 @@ function Mainbody() {
                 setGeoData(data);
             }else if(geo === 'state' && Object.keys(stateData).length !== 0){
                 let dateIndex = stateData['Alabama']['Date'].indexOf(date);
-                let data = [];
+                setDateIndex(dateIndex);
                 Object.entries(stateData).map( ([key1, value]) => {
                     data.push({
                         'Province_State':key1,
@@ -168,11 +177,11 @@ function Mainbody() {
     // plot the pie chart
     useEffect(() => {
         let selection = choice.replace('Daily_','');
-        let returnData = gettingTopKData(state, stateData, countyData, selection);
+        let returnData = gettingTopKData(state, stateData, countyData, selection, dateIndex, dateIndex);
         let loc = returnData[0];
         let data = returnData[1];
-        setPiePlot(<Pieplot loc={loc} data={data} choice={selection} />)
-    }, [state, stateData, countyData, choice])
+        setPiePlot(<Pieplot loc={loc} data={data} choice={selection}/>)
+    }, [state, stateData, countyData, choice, dateIndex])
 
     // play the history when the button is clicked
     const playHistory = () => {
@@ -204,6 +213,8 @@ function Mainbody() {
                         <div className="Mainbody__summary">
                             <p>Confirmed: {totalConfirmed.toLocaleString()}</p>
                             <p>Deaths: {totalDeath.toLocaleString()}</p>
+                            <p>Daily Confirmed: {totalDailyConfirmed.toLocaleString()}</p>
+                            <p>Daily Deaths: {totalDailyDeath.toLocaleString()}</p>
                         </div>
                         <Select
                             value={geo}

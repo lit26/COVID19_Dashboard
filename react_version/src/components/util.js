@@ -52,20 +52,20 @@ export function gettingData(state, county, stateData, countyData, choice){
 }
 
 // getting the top cases for the pie chart
-export function gettingTopKData(state, stateData, countyData, choice){
+export function gettingTopKData(state, stateData, countyData, choice, dateIndex){
     let loc = [];
     let data = [];
     let cases = [];
     if(state === 'US'){
         cases = Object.keys(stateData).map(function(key) {
             let data = stateData[key][choice];
-            return [key, data[data.length-1]];
+            return [key, data[dateIndex]];
         });
         
     }else{
         cases = Object.keys(countyData[state]).map(function(key) {
             let data = countyData[state][key][choice];
-            return [countyData[state][key]['County'], data[data.length-1]];
+            return [countyData[state][key]['County'], data[dateIndex]];
         });
     }
     cases.sort(function(first, second) {
