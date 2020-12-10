@@ -41,29 +41,6 @@ function Mainbody() {
     const [piePlot, setPiePlot] = useState([]);
     const [timeline, setTimeline] = useState([]);
 
-    // getting data for maps according to the dates
-    useEffect(() => {
-        if (date !== '') {
-            d3.csv(`https://raw.githubusercontent.com/lit26/COVID19_Data/main/time_series_data/${date}/covid_19_${geo}.csv`).then(function (data) {
-                let total_confirmed = 0;
-                let total_death = 0;
-
-                data.forEach(function (d) {
-                    d.Confirmed = +d.Confirmed;
-                    d.Deaths = +d.Deaths;
-                    d.Daily_Confirmed = +d.Daily_Confirmed;
-                    d.Daily_Deaths = +d.Daily_Deaths;
-                    total_confirmed = total_confirmed + d.Confirmed;
-                    total_death = total_death + d.Deaths;
-                });
-                setTotalConfirmed(total_confirmed);
-                setTotalDeath(total_death);
-                setGeoData(data);
-            });
-        }
-
-    }, [date, choice, geo])
-
     // getting state and county data 
     useEffect(() => {
         axios.get('https://raw.githubusercontent.com/lit26/COVID19_Data/main/data/covid_19_state_v1.json')
@@ -88,6 +65,63 @@ function Mainbody() {
                 console.log(err)
             })
     }, [])
+
+    // getting data for maps according to the dates
+    useEffect(() => {
+        if (date !== '') {
+            d3.csv(`https://raw.githubusercontent.com/lit26/COVID19_Data/main/time_series_data/${date}/covid_19_${geo}.csv`).then(function (data) {
+                let total_confirmed = 0;
+                let total_death = 0;
+
+                data.forEach(function (d) {
+                    d.Confirmed = +d.Confirmed;
+                    d.Deaths = +d.Deaths;
+                    d.Daily_Confirmed = +d.Daily_Confirmed;
+                    d.Daily_Deaths = +d.Daily_Deaths;
+                    total_confirmed = total_confirmed + d.Confirmed;
+                    total_death = total_death + d.Deaths;
+                });
+                setTotalConfirmed(total_confirmed);
+                setTotalDeath(total_death);
+            });
+
+            if(geo === 'county' && Object.keys(countyData).length !== 0){
+                let dateIndex = countyData['Alabama']['1001.0']['Date'].indexOf(date);
+                let data = [];
+                Object.entries(countyData).map( ([key1, state]) => {
+                    Object.entries(state).map( ([key2, value]) => {
+                        data.push({
+                            'Province_State':key1,
+                            'FIPS':key2,
+                            'Admin2':value.County,
+                            'Confirmed':value.Confirmed[dateIndex],
+                            'Deaths':value.Deaths[dateIndex],
+                            'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
+                            'daily_Deaths':value.Daily_Deaths[dateIndex]
+                        })
+                        return '';
+                    })
+                    return '';
+                })
+                setGeoData(data);
+            }else if(geo === 'state' && Object.keys(stateData).length !== 0){
+                let dateIndex = stateData['Alabama']['Date'].indexOf(date);
+                let data = [];
+                Object.entries(stateData).map( ([key1, value]) => {
+                    data.push({
+                        'Province_State':key1,
+                        'Confirmed':value.Confirmed[dateIndex],
+                        'Deaths':value.Deaths[dateIndex],
+                        'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
+                        'daily_Deaths':value.Daily_Deaths[dateIndex]
+                    })
+                    return '';
+                })
+                setGeoData(data);
+            }
+        }
+
+    }, [date, choice, geo,stateData, countyData])
 
     // getting counties according to the state
     useEffect(() => {
