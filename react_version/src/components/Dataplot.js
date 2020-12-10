@@ -199,7 +199,7 @@ export function Timeseriesplot({ barData, choice, record }) {
 }
 
 // Plot top 15 areas and the proportion on pie charts
-export function Pieplot({ loc, data, choice }) {
+export function Pieplot({ loc, data, choice}) {
     return (
         <Plot
             data={[{
