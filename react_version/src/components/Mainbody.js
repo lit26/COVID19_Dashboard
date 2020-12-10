@@ -93,6 +93,7 @@ function Mainbody() {
                 setDailyConfirmed(total_daily_confirmed);
                 setDailyDeath(total_daily_death);
             });
+
             let data = [];
             if(geo === 'county' && Object.keys(countyData).length !== 0){
                 let dateIndex = countyData['Alabama']['1001.0']['Date'].indexOf(date);
@@ -106,7 +107,7 @@ function Mainbody() {
                             'Confirmed':value.Confirmed[dateIndex],
                             'Deaths':value.Deaths[dateIndex],
                             'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
-                            'daily_Deaths':value.Daily_Deaths[dateIndex]
+                            'Daily_Deaths':value.Daily_Deaths[dateIndex]
                         })
                         return '';
                     })
