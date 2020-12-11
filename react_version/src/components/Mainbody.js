@@ -97,37 +97,46 @@ function Mainbody() {
             let data = [];
             if(geo === 'county' && Object.keys(countyData).length !== 0){
                 let dateIndex = countyData['Alabama']['1001.0']['Date'].indexOf(date);
-                setDateIndex(dateIndex);
-                Object.entries(countyData).map( ([key1, state]) => {
-                    Object.entries(state).map( ([key2, value]) => {
-                        data.push({
-                            'Province_State':key1,
-                            'FIPS':key2,
-                            'Admin2':value.County,
-                            'Confirmed':value.Confirmed[dateIndex],
-                            'Deaths':value.Deaths[dateIndex],
-                            'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
-                            'Daily_Deaths':value.Daily_Deaths[dateIndex]
+                if(dateIndex !== -1){
+                    setDateIndex(dateIndex);
+                    Object.entries(countyData).map( ([key1, state]) => {
+                        Object.entries(state).map( ([key2, value]) => {
+                            data.push({
+                                'Province_State':key1,
+                                'FIPS':key2,
+                                'Admin2':value.County,
+                                'Confirmed':value.Confirmed[dateIndex],
+                                'Deaths':value.Deaths[dateIndex],
+                                'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
+                                'Daily_Deaths':value.Daily_Deaths[dateIndex]
+                            })
+                            return '';
                         })
                         return '';
                     })
-                    return '';
-                })
-                setGeoData(data);
+                    setGeoData(data);
+                }else{
+                    alert('Invalid Date');
+                }
+                
             }else if(geo === 'state' && Object.keys(stateData).length !== 0){
                 let dateIndex = stateData['Alabama']['Date'].indexOf(date);
-                setDateIndex(dateIndex);
-                Object.entries(stateData).map( ([key1, value]) => {
-                    data.push({
-                        'Province_State':key1,
-                        'Confirmed':value.Confirmed[dateIndex],
-                        'Deaths':value.Deaths[dateIndex],
-                        'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
-                        'daily_Deaths':value.Daily_Deaths[dateIndex]
+                if(dateIndex !== -1){
+                    setDateIndex(dateIndex);
+                    Object.entries(stateData).map( ([key1, value]) => {
+                        data.push({
+                            'Province_State':key1,
+                            'Confirmed':value.Confirmed[dateIndex],
+                            'Deaths':value.Deaths[dateIndex],
+                            'Daily_Confirmed':value.Daily_Confirmed[dateIndex],
+                            'daily_Deaths':value.Daily_Deaths[dateIndex]
+                        })
+                        return '';
                     })
-                    return '';
-                })
-                setGeoData(data);
+                    setGeoData(data);
+                }else{
+                    alert('Invalid Date');
+                }
             }
         }
 
