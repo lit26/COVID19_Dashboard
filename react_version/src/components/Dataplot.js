@@ -18,11 +18,11 @@ export function Geoplot({ data, geo, choice, state, county }) {
             let covid_case = row[choice];
             if (choice === 'Confirmed') {
                 color = '#D79913';
-            } else if (choice === 'Daily_Confirmed'){
+            } else if (choice === 'Daily_Confirmed') {
                 color = '#d7b613'
             } else if (choice === 'Deaths') {
                 color = 'red';
-            } else if (choice === 'Daily_Deaths'){
+            } else if (choice === 'Daily_Deaths') {
                 color = '#ff5500';
             }
             if (geo === 'county') {
@@ -31,31 +31,35 @@ export function Geoplot({ data, geo, choice, state, county }) {
                     lats.push(countyCoor[fips]['Lat']);
                     lons.push(countyCoor[fips]['Lon']);
                     cases.push(scaling(covid_case, choice) * 3);
-                    hoverText.push(row.Province_State + ', ' + row.Admin2 + ": " + covid_case.toLocaleString());
+                    hoverText.push(`Area: ${row.Province_State}, ${row.Admin2}<br>`+
+                                   `Cases: ${covid_case.toLocaleString()}<br>`+
+                                   `Daily Cases: ${row[`Daily_${choice}`].toLocaleString()}`);
                 }
             } else {
                 if (row.Province_State in stateCoor) {
                     lats.push(stateCoor[row.Province_State]['Latitude']);
                     lons.push(stateCoor[row.Province_State]['Longitude']);
                     cases.push(scaling(covid_case, choice) * 1.2);
-                    hoverText.push(stateAbbreviation[row.Province_State] + ": " + covid_case.toLocaleString());
+                    hoverText.push(`Area: ${stateAbbreviation[row.Province_State]}<br>`+
+                                   `Cases: ${covid_case.toLocaleString()}<br>`+
+                                   `Daily Cases: ${row[`Daily_${choice}`].toLocaleString()}`);
                 }
             }
             return '';
         });
         if (state !== "" && state !== undefined && state !== 'US') {
-            if(county ===""){
+            if (county === "") {
                 let cenCoor = stateCoor[state];
                 setCenter([cenCoor.Longitude, cenCoor.Latitude, 5]);
-            }else{
-                Object.entries(countyCoor).map( ([key, value]) => {
-                    if(county === value.Admin2 && state === value.Province_State){
+            } else {
+                Object.entries(countyCoor).map(([key, value]) => {
+                    if (county === value.Admin2 && state === value.Province_State) {
                         setCenter([value.Lon, value.Lat, 6]);
                     }
                     return '';
                 })
             }
-        }else{
+        } else {
             setCenter([-95.61446, 38.72490, 2.5])
         }
 
@@ -63,7 +67,7 @@ export function Geoplot({ data, geo, choice, state, county }) {
             type: "scattermapbox",
             lat: lats,
             lon: lons,
-            mode: "markers",
+            hoverinfo: 'text',
             text: hoverText,
             marker:
             {
@@ -125,8 +129,89 @@ export function Geoplot({ data, geo, choice, state, county }) {
     )
 }
 
+export function Choroplethplot({ geoData, choice }) {
+    const [graphData, setGraphData] = useState({});
+    const [center] = useState([-95.61446, 38.72490, 2.5]);
+
+    useEffect(() => {
+        let state_list = [];
+        let percentage_list = [];
+        let hoverText = [];
+        geoData.map(data => {
+            state_list.push(data['state']);
+            percentage_list.push(data[`Percentage of ${choice}`]);
+            hoverText.push(`State: ${data['state']}<br>${choice}: ${data[choice]} (${data[`Percentage of ${choice}`]}%)<br>Total Beds: ${data['Total Inpatient Beds']}<br>Total ICU Beds: ${data['Total Staffed Adult ICU Beds']}`);
+            return ''
+        })
+
+        setGraphData({
+            type: "choroplethmapbox",
+            locations: state_list,
+            z: percentage_list,
+            text: hoverText,
+            hoverinfo: 'text',
+            geojson: "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json",
+            colorscale: 'Electric',
+            reversescale: true,
+            showscale: false,
+            zmin: 0,
+            zmax: 100,
+
+        });
+    }, [geoData, choice])
+
+    return (
+        <Plot
+            data={[graphData]}
+            layout={{
+                autosize: true,
+                height: 500,
+                width: window.innerWidth * 0.6,
+                showlegend: false,
+                mapbox: {
+                    accesstoken: 'pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g',
+                    style: "dark",
+                    zoom: center[2],
+                    center: { lon: center[0], lat: center[1] },
+                    bearing: 0
+                },
+                margin: { t: 0, b: 0, l: 0, r: 0 },
+                updatemenus: [
+                    {
+                        buttons: [
+                            {
+                                args: [{
+                                    "mapbox.zoom": center[2],
+                                    "mapbox.center.lon": center[0],
+                                    "mapbox.center.lat": center[1],
+                                    "mapbox.bearing": 0,
+                                    "mapbox.style": "dark"
+                                }],
+                                label: "Reset Zoom",
+                                method: "relayout",
+                            }
+                        ],
+                        direction: "left",
+                        pad: { l: 0, t: 0, b: 0, r: 0 },
+                        showactive: false,
+                        type: "buttons",
+                        x: 0.45,
+                        y: 0.02,
+                        xanchor: "left",
+                        yanchor: "bottom",
+                        bgcolor: "#323130",
+                        borderwidth: "1",
+                        bordercolor: "#6d6d6d",
+                        font: { color: "#FFFFFF" }
+                    }
+                ]
+            }}
+        />
+    )
+}
+
 // time series plot for cases accross time
-export function Timeseriesplot({ barData, choice, record }) {
+export function Timeseriesplot({ x, lineData, barData, choice, record }) {
     const [color, setColor] = useState('');
     useEffect(() => {
         if (choice === 'Deaths') {
@@ -141,26 +226,26 @@ export function Timeseriesplot({ barData, choice, record }) {
             data={[
                 {
                     type: 'scatter',
-                    x: barData['Date'],
-                    y: barData['Cases'],
+                    x: x,
+                    y: lineData,
                     name: choice,
                     line: { color: color }
                 },
                 {
                     type: 'bar',
-                    x: barData['Date'],
-                    y: barData['DailyCases'],
+                    x: x,
+                    y: barData,
                     name: `Daily_${choice}`,
                     yaxis: 'y2',
                     marker: { color: color }
                 },
                 {
                     type: 'scatter',
-                    x: barData['Date'],
+                    x: x,
                     y: record,
                     name: 'Max Daily',
                     yaxis: 'y2',
-                    line: { color: 'white',dash:'dash',width:1}
+                    line: { color: 'white', dash: 'dash', width: 1 }
                 },
             ]}
             layout={{
@@ -199,7 +284,7 @@ export function Timeseriesplot({ barData, choice, record }) {
 }
 
 // Plot top 15 areas and the proportion on pie charts
-export function Pieplot({ loc, data, choice}) {
+export function Pieplot({ loc, data, choice }) {
     return (
         <Plot
             data={[{
@@ -243,7 +328,7 @@ export function Pieplot({ loc, data, choice}) {
 function scaling(n, choice) {
     let size = 0;
     if (choice === 'Confirmed') {
-        if (n === 0){
+        if (n === 0) {
             size = 0;
         } else if (n < 5000) {
             size = 1;
@@ -263,7 +348,7 @@ function scaling(n, choice) {
             size = 50;
         }
     } else if (choice === 'Deaths') {
-        if (n === 0){
+        if (n === 0) {
             size = 0;
         } else if (n < 100) {
             size = 1;
@@ -282,46 +367,46 @@ function scaling(n, choice) {
         } else {
             size = 35;
         }
-    } else if (choice === 'Daily_Confirmed'){
-        if (n===0){
+    } else if (choice === 'Daily_Confirmed') {
+        if (n === 0) {
             size = 0;
-        }else if (n < 100) {
+        } else if (n < 100) {
             size = 1;
-        }else if (n < 500) {
+        } else if (n < 500) {
             size = 3;
-        }else if (n < 1000) {
+        } else if (n < 1000) {
             size = 5;
-        }else if (n < 2000) {
+        } else if (n < 2000) {
             size = 10;
-        }else if (n < 5000) {
+        } else if (n < 5000) {
             size = 15;
-        }else if (n < 10000){
+        } else if (n < 10000) {
             size = 20;
-        }else if (n < 20000) {
+        } else if (n < 20000) {
             size = 25;
-        }else if (n < 50000) {
+        } else if (n < 50000) {
             size = 30;
-        }else{
+        } else {
             size = 50;
         }
     } else {
-        if (n===0){
+        if (n === 0) {
             size = 0;
-        }else if (n<10){
+        } else if (n < 10) {
             size = 1;
-        }else if (n<30){
+        } else if (n < 30) {
             size = 5;
-        }else if (n<50){
+        } else if (n < 50) {
             size = 7;
-        }else if (n<100){
+        } else if (n < 100) {
             size = 10;
-        }else if (n<200){
+        } else if (n < 200) {
             size = 15;
-        }else if (n<500){
+        } else if (n < 500) {
             size = 20;
-        }else if (n<1000){
+        } else if (n < 1000) {
             size = 25;
-        }else{
+        } else {
             size = 30;
         }
     }
