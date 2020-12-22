@@ -54,9 +54,9 @@ You can run the app on your browser at http://127.0.0.1:8050
 
 ## Data Update
 
-Python version collects data directly from Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19) and will preprocess the data for this app.
+Python version collects data directly from Johns Hopkins CSSE (https://github.com/CSSEGISandData/COVID-19) and preprocess the data for this app.
 
-React version use the data from https://github.com/lit26/COVID19_Data. Which is a repo which auto fetching data from Johns Hopkins CSSE and process with scripts. The data will update daily at 0:00 Pacific Time. 
+React version use the data from https://github.com/lit26/COVID19_Data. Which is a repo which auto fetching data from Johns Hopkins CSSE and HealthData.gov and  process with scripts. The data will update daily at 0:00 Pacific Time. 
 
 ## Screenshots
 
