@@ -16,6 +16,7 @@ export function Geoplot({ data, geo, choice, state, county }) {
         let color = '';
         data.map(row => {
             let covid_case = row[choice];
+            let case_choice = choice.replace('Daily_', '');
             if (choice === 'Confirmed') {
                 color = '#D79913';
             } else if (choice === 'Daily_Confirmed') {
@@ -31,18 +32,18 @@ export function Geoplot({ data, geo, choice, state, county }) {
                     lats.push(countyCoor[fips]['Lat']);
                     lons.push(countyCoor[fips]['Lon']);
                     cases.push(scaling(covid_case, choice) * 3);
-                    hoverText.push(`Area: ${row.Province_State}, ${row.Admin2}<br>`+
-                                   `Cases: ${covid_case.toLocaleString()}<br>`+
-                                   `Daily Cases: ${row[`Daily_${choice}`].toLocaleString()}`);
+                    hoverText.push(`Area: ${row.Province_State}, ${row.Admin2}<br>` +
+                        `Cases: ${row[case_choice].toLocaleString()}<br>` +
+                        `Daily Cases: ${row[`Daily_${case_choice}`].toLocaleString()}`);
                 }
             } else {
                 if (row.Province_State in stateCoor) {
                     lats.push(stateCoor[row.Province_State]['Latitude']);
                     lons.push(stateCoor[row.Province_State]['Longitude']);
                     cases.push(scaling(covid_case, choice) * 1.2);
-                    hoverText.push(`Area: ${stateAbbreviation[row.Province_State]}<br>`+
-                                   `Cases: ${covid_case.toLocaleString()}<br>`+
-                                   `Daily Cases: ${row[`Daily_${choice}`].toLocaleString()}`);
+                    hoverText.push(`Area: ${stateAbbreviation[row.Province_State]}<br>` +
+                        `Cases: ${row[case_choice].toLocaleString()}<br>` +
+                        `Daily Cases: ${row[`Daily_${case_choice}`].toLocaleString()}`);
                 }
             }
             return '';
@@ -129,9 +130,9 @@ export function Geoplot({ data, geo, choice, state, county }) {
     )
 }
 
-export function Choroplethplot({ geoData, choice }) {
+export function Choroplethplot({ geoData, choice, state }) {
     const [graphData, setGraphData] = useState({});
-    const [center] = useState([-95.61446, 38.72490, 2.5]);
+    const [center, setCenter] = useState([-95.61446, 38.72490, 2.5]);
 
     useEffect(() => {
         let state_list = [];
@@ -143,6 +144,12 @@ export function Choroplethplot({ geoData, choice }) {
             hoverText.push(`State: ${data['state']}<br>${choice}: ${data[choice]} (${data[`Percentage of ${choice}`]}%)<br>Total Beds: ${data['Total Inpatient Beds']}<br>Total ICU Beds: ${data['Total Staffed Adult ICU Beds']}`);
             return ''
         })
+        if (state !== "" && state !== undefined && state !== 'US') {
+            let cenCoor = stateCoor[state];
+            setCenter([cenCoor.Longitude, cenCoor.Latitude, 5]);
+        } else {
+            setCenter([-95.61446, 38.72490, 2.5])
+        }
 
         setGraphData({
             type: "choroplethmapbox",
@@ -158,7 +165,7 @@ export function Choroplethplot({ geoData, choice }) {
             zmax: 100,
 
         });
-    }, [geoData, choice])
+    }, [geoData, choice, state])
 
     return (
         <Plot

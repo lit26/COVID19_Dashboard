@@ -45,6 +45,7 @@ function Mainbody() {
     const [timeseriesPlot, setTimeseriesPlot] = useState([]);
     const [piePlot, setPiePlot] = useState([]);
     const [timeline, setTimeline] = useState([]);
+    const [hospitalTimeline, setHospitalTimeline] = useState([]);
     const [dateIndex, setDateIndex] = useState('');
 
     // getting state and county data 
@@ -71,19 +72,23 @@ function Mainbody() {
                 console.log(err)
             })
         d3.csv('https://raw.githubusercontent.com/lit26/COVID19_Data/main/data/hospital_data.csv').then(function (data) {
+            let availableDates = []
             data.forEach(function (d) {
+                if (!availableDates.includes(d['collection_date'])) {
+                    availableDates.push(d['collection_date']);
+                }
                 d['Inpatient Beds Occupied Estimated'] = + d['Inpatient Beds Occupied Estimated'].split(',').join('');
                 d['Inpatient Beds Occupied by COVID-19 Patients Estimated'] = + d['Inpatient Beds Occupied by COVID-19 Patients Estimated'].split(',').join('');
                 d['Percentage of Inpatient Beds Occupied Estimated'] = + d['Percentage of Inpatient Beds Occupied Estimated'];
                 d['Percentage of Inpatient Beds Occupied by COVID-19 Patients Estimated'] = + d['Percentage of Inpatient Beds Occupied by COVID-19 Patients Estimated'];
                 d['Percentage of Staffed Adult ICU Beds Occupied Estimated'] = + d['Percentage of Staffed Adult ICU Beds Occupied Estimated'];
                 d['Staffed Adult ICU Beds Occupied Estimated'] = + d['Staffed Adult ICU Beds Occupied Estimated'].split(',').join('');
-                d['Total Inpatient Beds'] =+ d['Total Inpatient Beds'].split(',').join('');
-                d['Total Staffed Adult ICU Beds'] =+ d['Total Staffed Adult ICU Beds'].split(',').join('');
+                d['Total Inpatient Beds'] = + d['Total Inpatient Beds'].split(',').join('');
+                d['Total Staffed Adult ICU Beds'] = + d['Total Staffed Adult ICU Beds'].split(',').join('');
             })
             setHospitalData(data);
+            setHospitalTimeline(availableDates);
         });
-
     }, [])
 
     // getting data for maps according to the dates
@@ -134,7 +139,7 @@ function Mainbody() {
                         })
                         setGeoData(data);
                     } else {
-                        alert('Invalid Date');
+                        alert(`Invalid Date. Available dates: ${timeline[0]} - ${timeline[timeline.length - 1]}`);
                     }
 
                 } else if (geo === 'state' && Object.keys(stateData).length !== 0) {
@@ -153,21 +158,21 @@ function Mainbody() {
                         })
                         setGeoData(data);
                     } else {
-                        alert('Invalid Date');
+                        alert(`Invalid Date. Available dates: ${timeline[0]} - ${timeline[timeline.length - 1]}`);
                     }
                 }
             } else {
                 let hospital_data = hospitalData.filter(each => each.collection_date === date);
-                if(hospital_data.length > 0){
+                if (hospital_data.length > 0) {
                     setGeoData(hospital_data);
-                }else{
-                    alert('Invalid Date');
+                } else {
+                    alert(`Invalid Date. Available dates: ${hospitalTimeline[0]} - ${hospitalTimeline[hospitalTimeline.length - 1]}`);
                 }
             }
 
         }
 
-    }, [date, choice, geo, stateData, countyData, hospitalData])
+    }, [date, choice, geo, stateData, countyData, hospitalData, timeline, hospitalTimeline]);
 
     // getting counties according to the state
     useEffect(() => {
@@ -219,7 +224,7 @@ function Mainbody() {
                     <MenuItem value="Staffed Adult ICU Beds Occupied Estimated">Staffed Adult ICU Beds Occupied * </MenuItem>
                 </Select>
             )
-        }else{
+        } else {
             setChoiceMenu(
                 <Select
                     value={choice}
@@ -233,7 +238,7 @@ function Mainbody() {
                 </Select>
             )
         }
-    },[choice, geo, classes.select])
+    }, [choice, geo, classes.select])
 
     // plot the map
     useEffect(() => {
@@ -241,8 +246,8 @@ function Mainbody() {
             setGeoPlot(
                 <Geoplot data={geoData} geo={geo} choice={choice} state={state} county={county} />
             )
-        }else{
-            setGeoPlot(<Choroplethplot geoData={geoData} choice={choice}/>)
+        } else {
+            setGeoPlot(<Choroplethplot geoData={geoData} choice={choice} state={state} />)
         }
     }, [geoData, geo, choice, state, county])
 
@@ -252,15 +257,12 @@ function Mainbody() {
             let selection = choice.replace('Daily_', '');
             let timeseriesData = gettingData(state, county, stateData, countyData, selection);
             let record = Math.max.apply(Math, timeseriesData.DailyCases);
-            setTimeseriesPlot(<Timeseriesplot x={timeseriesData['Date']} 
-                                            lineData={timeseriesData['Cases']} 
-                                            barData={timeseriesData['DailyCases']} 
-                                            choice={selection} 
-                                            record={new Array(timeseriesData.Date.length).fill(record)} />);
+            setTimeseriesPlot(<Timeseriesplot x={timeseriesData['Date']}
+                lineData={timeseriesData['Cases']}
+                barData={timeseriesData['DailyCases']}
+                choice={selection}
+                record={new Array(timeseriesData.Date.length).fill(record)} />);
             setDailyRecords(record);
-        }else{
-            console.log(choice)
-            console.log(hospitalData)
         }
     }, [state, county, stateData, countyData, hospitalData, choice])
 
@@ -277,9 +279,16 @@ function Mainbody() {
 
     // play the history when the button is clicked
     const playHistory = () => {
-        for (let i = 1; i < timeline.length; i++) {
+        let playTimeLine = [];
+        if (choice === 'Confirmed' || choice === 'Deaths' || choice === 'Daily_Confirmed' || choice === 'Daily_Deaths') {
+            playTimeLine = timeline;
+        } else {
+            playTimeLine = hospitalTimeline;
+        }
+
+        for (let i = 1; i < playTimeLine.length; i++) {
             setTimeout(() => {
-                setDate(timeline[i]);
+                setDate(playTimeLine[i]);
             }, i * 100);
         }
     }
