@@ -253,28 +253,30 @@ function Mainbody() {
 
     // plot the bar chart and line chart
     useEffect(() => {
+        let selection = 'Confirmed'
         if (choice === 'Confirmed' || choice === 'Deaths' || choice === 'Daily_Confirmed' || choice === 'Daily_Deaths') {
-            let selection = choice.replace('Daily_', '');
-            let timeseriesData = gettingData(state, county, stateData, countyData, selection);
-            let record = Math.max.apply(Math, timeseriesData.DailyCases);
-            setTimeseriesPlot(<Timeseriesplot x={timeseriesData['Date']}
-                lineData={timeseriesData['Cases']}
-                barData={timeseriesData['DailyCases']}
-                choice={selection}
-                record={new Array(timeseriesData.Date.length).fill(record)} />);
-            setDailyRecords(record);
+            selection = choice.replace('Daily_', '');
         }
+        let timeseriesData = gettingData(state, county, stateData, countyData, selection);
+        let record = Math.max.apply(Math, timeseriesData.DailyCases);
+        setTimeseriesPlot(<Timeseriesplot x={timeseriesData['Date']}
+            lineData={timeseriesData['Cases']}
+            barData={timeseriesData['DailyCases']}
+            choice={selection}
+            record={new Array(timeseriesData.Date.length).fill(record)} />);
+        setDailyRecords(record);
     }, [state, county, stateData, countyData, hospitalData, choice])
 
     // plot the pie chart
     useEffect(() => {
+        let selection = 'Confirmed'
         if (choice === 'Confirmed' || choice === 'Deaths' || choice === 'Daily_Confirmed' || choice === 'Daily_Deaths') {
-            let selection = choice.replace('Daily_', '');
-            let returnData = gettingTopKData(state, stateData, countyData, selection, dateIndex, dateIndex);
-            let loc = returnData[0];
-            let data = returnData[1];
-            setPiePlot(<Pieplot loc={loc} data={data} choice={selection} />)
+            selection = choice.replace('Daily_', '');
         }
+        let returnData = gettingTopKData(state, stateData, countyData, selection, dateIndex, dateIndex);
+        let loc = returnData[0];
+        let data = returnData[1];
+        setPiePlot(<Pieplot loc={loc} data={data} choice={selection} />)
     }, [state, stateData, countyData, choice, dateIndex])
 
     // play the history when the button is clicked
