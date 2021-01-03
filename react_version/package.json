@@ -11,6 +11,7 @@
     "axios": "^0.21.0",
     "bootstrap": "^4.5.3",
     "d3": "^6.3.0",
+    "firebase": "^7.14.2",
     "plotly.js": "^1.58.1",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
@@ -25,7 +26,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-
   "eslintConfig": {
     "extends": [
       "react-app",

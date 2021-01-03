@@ -50,7 +50,7 @@ function Mainbody() {
 
     // getting state and county data 
     useEffect(() => {
-        axios.get('https://raw.githubusercontent.com/lit26/COVID19_Data/main/data/covid_19_state_v1.json')
+        axios.get('https://raw.githubusercontent.com/Covid19-US-Dashboard/COVID19_Data/main/data/covid_19_state_v1.json')
             .then(res => {
                 let dailyConfirmed = calculateCases(res.data.Data, 'Confirmed');
                 let dailyDeaths = calculateCases(res.data.Data, 'Deaths');
@@ -64,14 +64,14 @@ function Mainbody() {
             .catch(err => {
                 console.log(err)
             })
-        axios.get('https://raw.githubusercontent.com/lit26/COVID19_Data/main/data/covid_19_county_v1.json')
+        axios.get('https://raw.githubusercontent.com/Covid19-US-Dashboard/COVID19_Data/main/data/covid_19_county_v1.json')
             .then(res => {
                 setCountyData(res.data.Data);
             })
             .catch(err => {
                 console.log(err)
             })
-        d3.csv('https://raw.githubusercontent.com/lit26/COVID19_Data/main/data/hospital_data.csv').then(function (data) {
+        d3.csv('https://raw.githubusercontent.com/Covid19-US-Dashboard/COVID19_Data/main/data/hospital_data.csv').then(function (data) {
             let availableDates = []
             data.forEach(function (d) {
                 if (!availableDates.includes(d['collection_date'])) {
@@ -95,7 +95,7 @@ function Mainbody() {
     useEffect(() => {
         if (date !== '') {
             if (choice === 'Confirmed' || choice === 'Deaths' || choice === 'Daily_Confirmed' || choice === 'Daily_Deaths') {
-                d3.csv(`https://raw.githubusercontent.com/lit26/COVID19_Data/main/time_series_data/${date}/covid_19_${geo}.csv`).then(function (data) {
+                d3.csv(`https://raw.githubusercontent.com/Covid19-US-Dashboard/COVID19_Data/main/time_series_data/${date}/covid_19_${geo}.csv`).then(function (data) {
                     let total_confirmed = 0;
                     let total_death = 0;
                     let total_daily_confirmed = 0;
