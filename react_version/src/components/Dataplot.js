@@ -264,6 +264,7 @@ export function Timeseriesplot({ x, lineData, barData, choice, record }) {
                     },
                     orientation: 'h',
                 },
+                hovermode: 'x unified',
                 title: `Number of ${choice} Cases`,
                 plot_bgcolor: "#323130",
                 paper_bgcolor: "#323130",
