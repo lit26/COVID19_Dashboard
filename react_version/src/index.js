@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import * as firebase from 'firebase/app';
-import {firebaseConfig} from './firebaseConfig'
+import {firebaseConfig} from './firebaseConfig';
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import firebase from "firebase/app";
+import 'firebase/analytics'
 
 firebase.initializeApp(firebaseConfig);
+firebase.analytics();
 
 ReactDOM.render(
   <React.StrictMode>
